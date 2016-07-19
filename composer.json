@@ -1,0 +1,17 @@
+{
+    "name": "fzed51/core",
+    "description": "mini framework php",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "fzed51",
+            "email": "fzed51+git@gmail.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "fzed51\\Core\\": "src"
+        }
+    }
+}
