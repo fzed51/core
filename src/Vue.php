@@ -10,7 +10,7 @@ namespace fzed51\Core;
 class Vue
 {
 
-    const WEBPATH = __DIR__ . DIRECTORY_SEPARATOR . '../public';
+    const WEBPATH = './public';
 
     private static $_base_root = null;
     private static $_style;
