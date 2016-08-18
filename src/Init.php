@@ -6,3 +6,4 @@ session_start();
 include __DIR__ . '/aliasClass.php';
 include __DIR__ . '/helper.php';
 include __DIR__ . '/session.php';
+include __DIR__ . '/debug.php';
