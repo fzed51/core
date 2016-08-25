@@ -353,3 +353,20 @@ function trace($message)
     fwrite($handle, '[' . date('r') . '] > ' . $message . PHP_EOL);
     fclose($handle);
 }
+
+/**
+ * Extrait un simple tableau d'un tableau d'objet.
+ * 
+ * @param array $list_object tableau d'objet
+ * @param string $key propriété qui servira de clé
+ * @param string $value propriété qui servira de valeur
+ * @return array
+ */
+function extractFromObject(Array $list_object, $key, $value)
+{
+    $out = [];
+    foreach ($list_object as $object) {
+        $out[$object->{$key}] = $object->{$value};
+    }
+    return $out;
+}
