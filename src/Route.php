@@ -10,27 +10,35 @@ namespace fzed51\Core;
 class Route
 {
 
+    private $path;
+    private $action;
+    private $name;
     static private $_route = [];
     private static $_base_root = null;
 
-    static public
-            function setBaseUrl($base_root)
+    private function __construct($name, $path, $action)
+    {
+        $this->name = $name;
+        $this->action = $action;
+        $this->path = $path;
+    }
+
+    static public function setBaseUrl($base_root)
     {
         self::$_base_root = $base_root;
     }
 
-    static public
-            function set($name, $path, $action)
+    static public function set($name, $path, $action)
     {
-        $newRoute = new \stdClass();
-        $newRoute->name = $name;
-        $newRoute->path = $path;
-        $newRoute->action = $action;
+        //$newRoute = new \stdClass();
+        //$newRoute->name = $name;
+        //$newRoute->path = $path;
+        //$newRoute->action = $action;
+        $newRoute = new self($name, $path, $action);
         self::$_route[$name] = $newRoute;
     }
 
-    static public
-            function dispatch($uri)
+    static public function dispatch($uri)
     {
         $uri = ltrim($uri, '/');
 
@@ -45,12 +53,10 @@ class Route
         }
     }
 
-    static private
-            function match($uri)
+    static private function match($uri)
     {
         foreach (self::$_route as $name => $route) {
-            $regex = self::pathToRegEx($route->path);
-            if (preg_match($regex, $uri, $matches)) {
+            if (preg_match($route->pathToRegEx(), $uri, $matches)) {
                 $_GET = array_merge($_GET, $matches);
                 return $name;
             }
@@ -58,8 +64,7 @@ class Route
         return false;
     }
 
-    static private
-            function pathToRegEx($path)
+    private function pathToRegEx()
     {
         $fnReplace = function ($matches) {
             if (array_search($matches[0], ['.', '\\', '+', '*', '?', '[', '^', ']', '$', '(', ')', '{', '}', '=', '!', '<', '>', '|', ':', '-', '`'])) {
@@ -76,15 +81,14 @@ class Route
         $patterns = [
             "/(?:{([^}:]+)(?:\\:([^}]*))?})|\\.|\\\\|\\+|\\*|\\?|\\[|\\^|\\]|\\$|\\(|\\)|\\{|\\}|\\=|\\!|\\<|\\>|\\||\\:|\\-|\\`/"
         ];
-        $path = '`^' . preg_replace_callback($patterns, $fnReplace, $path) . '$`';
+        $path = '`^' . preg_replace_callback($patterns, $fnReplace, $this->path) . '$`';
         return $path;
     }
 
-    static private
-            function executeAction($route)
+    private function executeAction()
     {
         $matches = [];
-        $action = $route->action;
+        $action = $this->action;
         if (is_callable($action)) {
             call_user_func($action);
             return;
@@ -101,11 +105,10 @@ class Route
                 }
             }
         }
-        self::redirect(500, "Erreur d'executin de la page {$route->name}");
+        self::redirect(500, "Erreur d'executin de la page {$this->name}");
     }
 
-    static public
-            function urlFor($name, array $options = [], array $attrib = [])
+    static public function urlFor($name, array $options = [], array $attrib = [])
     {
         $base = self::getBaseUrl();
         if (!isset(self::$_route[$name])) {
@@ -132,7 +135,7 @@ class Route
                 if ($start) {
                     $start = false;
                 } else {
-                    $url.='&';
+                    $url .= '&';
                 }
                 $url .= $key . '=' . urldecode($value);
             }
@@ -140,8 +143,7 @@ class Route
         return self::concatPath($base, $url, '/');
     }
 
-    static public
-            function getBaseUrl()
+    static public function getBaseUrl()
     {
         if (is_null(self::$_base_root)) {
             self::$_base_root = dirname($_SERVER['SCRIPT_NAME']);
@@ -156,20 +158,18 @@ class Route
         return $path;
     }
 
-    static private
-            function redirect($code, $message = "")
+    static private function redirect($code, $message = "")
     {
         http_response_code($code);
         if (isset(self::$_route[$code])) {
-            self::executeAction(self::$_route[$code]);
+            self::$_route[$code]->executeAction();
         } else {
             echo $message;
         }
         die();
     }
 
-    static public
-            function getPath($name)
+    static public function getPath($name)
     {
         if (!isset(self::$_route[$name])) {
             throw new Exception("Ceste route n'existe pas !");
