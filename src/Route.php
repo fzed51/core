@@ -10,10 +10,29 @@ namespace fzed51\Core;
 class Route
 {
 
+    /**
+     * @var string Chemin/regex de la route
+     */
     private $path;
+
+    /**
+     * @var callable/string action de la route
+     */
     private $action;
+
+    /**
+     * @var string nom de la route
+     */
     private $name;
+
+    /**
+     * @var array Liste des routes
+     */
     static private $_route = [];
+
+    /**
+     * @var string chemin de base pour la construction des liens
+     */
     private static $_base_root = null;
 
     private function __construct($name, $path, $action)
@@ -45,9 +64,9 @@ class Route
         $name = self::match($uri);
 
         if (!$name && ($uri == '' || $uri == 'home' || $uri == 'index.html') && isset(self::$_route['home'])) {
-            self::executeAction(self::$_route['home']);
+            self::$_route['home']->executeAction();
         } elseif (isset(self::$_route[$name])) {
-            self::executeAction(self::$_route[$name]);
+            self::$_route[$name]->executeAction();
         } else {
             self::redirect(404, "Page introuvable ...");
         }
