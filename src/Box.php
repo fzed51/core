@@ -10,27 +10,23 @@ namespace fzed51\Core;
  * @copyright 2015
  *
  */
-class BoxException extends \Exception
-{
+class BoxException extends \Exception {
 
 }
 
-class Box
-{
+class Box {
 
     static private $generateur = [];
     static private $instance = [];
 
-    static function set($key, Callable $callback, $singleton)
-    {
+    static function set($key, Callable $callback, $singleton) {
         self::$generateur[$key] = [
             'callback' => $callback,
             'singleton' => $singleton
         ];
     }
 
-    static function get($key)
-    {
+    static function get($key) {
         if (isset(self::$generateur[$key])) {
             $gen = self::$generateur[$key];
             if ($gen['singleton']) {
@@ -43,16 +39,14 @@ class Box
         }
     }
 
-    static private function getInstance($key)
-    {
+    static private function getInstance($key) {
         if (!isset(self::$instance[$key])) {
             self::$instance[$key] = self::getCallback($key);
         }
         return self::$instance[$key];
     }
 
-    static private function getCallback($key)
-    {
+    static private function getCallback($key) {
         return call_user_func(self::$generateur[$key]['callback']);
     }
 

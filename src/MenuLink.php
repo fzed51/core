@@ -7,23 +7,19 @@ namespace fzed51\Core;
  *
  * @author fabien.sanchez
  */
-class MenuLink extends MenuElement
-{
+class MenuLink extends MenuElement {
 
     private $link;
 
-    public function __construct($link)
-    {
+    public function __construct($link) {
         $this->link = $link;
     }
 
-    public function getLink()
-    {
+    public function getLink() {
         return $this->link;
     }
 
-    public function render(MenuRender $renderer)
-    {
+    public function render(MenuRender $renderer) {
         return $renderer->renderLink($this);
     }
 

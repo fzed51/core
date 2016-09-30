@@ -7,8 +7,7 @@ namespace fzed51\Core;
  *
  * @author fabien.sanchez
  */
-abstract class MenuElement
-{
+abstract class MenuElement {
 
     abstract function render(MenuRender $renderer);
 }

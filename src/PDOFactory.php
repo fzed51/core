@@ -10,18 +10,15 @@ use PDO;
  *
  * @author fabien.sanchez
  */
-class PDOFactory
-{
+class PDOFactory {
 
-    static private function configPdo(PDO $pdo)
-    {
+    static private function configPdo(PDO $pdo) {
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
         return $pdo;
     }
 
-    static public function sqlite($filename)
-    {
+    static public function sqlite($filename) {
         if (file_exists($filename)) {
             $filename = realpath($filename);
             $pdo = new PDO('sqlite:' . $filename);
@@ -31,8 +28,7 @@ class PDOFactory
         return self::configPdo($pdo);
     }
 
-    static public function oci($sid, $user, $password)
-    {
+    static public function oci($sid, $user, $password) {
         $pdo = new PDO("oci:dbname=$sid", $user, $password);
         return self::configPdo($pdo);
     }

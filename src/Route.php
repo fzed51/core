@@ -7,8 +7,7 @@ namespace fzed51\Core;
  *
  * @author fabien.sanchez
  */
-class Route
-{
+class Route {
 
     /**
      * @var string Chemin/regex de la route
@@ -35,20 +34,17 @@ class Route
      */
     private static $_base_root = null;
 
-    private function __construct($name, $path, $action)
-    {
+    private function __construct($name, $path, $action) {
         $this->name = $name;
         $this->action = $action;
         $this->path = $path;
     }
 
-    static public function setBaseUrl($base_root)
-    {
+    static public function setBaseUrl($base_root) {
         self::$_base_root = $base_root;
     }
 
-    static public function set($name, $path, $action)
-    {
+    static public function set($name, $path, $action) {
         //$newRoute = new \stdClass();
         //$newRoute->name = $name;
         //$newRoute->path = $path;
@@ -57,8 +53,7 @@ class Route
         self::$_route[$name] = $newRoute;
     }
 
-    static public function dispatch($uri)
-    {
+    static public function dispatch($uri) {
         $uri = ltrim($uri, '/');
 
         $name = self::match($uri);
@@ -72,8 +67,7 @@ class Route
         }
     }
 
-    static private function match($uri)
-    {
+    static private function match($uri) {
         foreach (self::$_route as $name => $route) {
             if (preg_match($route->pathToRegEx(), $uri, $matches)) {
                 $_GET = array_merge($_GET, $matches);
@@ -83,8 +77,7 @@ class Route
         return false;
     }
 
-    private function pathToRegEx()
-    {
+    private function pathToRegEx() {
         $fnReplace = function ($matches) {
             if (array_search($matches[0], ['.', '\\', '+', '*', '?', '[', '^', ']', '$', '(', ')', '{', '}', '=', '!', '<', '>', '|', ':', '-', '`'])) {
                 return '\\' . $matches[0];
@@ -104,8 +97,7 @@ class Route
         return $path;
     }
 
-    private function executeAction()
-    {
+    private function executeAction() {
         $matches = [];
         $action = $this->action;
         if (is_callable($action)) {
@@ -127,8 +119,7 @@ class Route
         self::redirect(500, "Erreur d'executin de la page {$this->name}");
     }
 
-    static public function urlFor($name, array $options = [], array $attrib = [])
-    {
+    static public function urlFor($name, array $options = [], array $attrib = []) {
         $base = self::getBaseUrl();
         if (!isset(self::$_route[$name])) {
             return self::concatPath($base, '/', '/');
@@ -162,8 +153,7 @@ class Route
         return self::concatPath($base, $url, '/');
     }
 
-    static public function getBaseUrl()
-    {
+    static public function getBaseUrl() {
         if (is_null(self::$_base_root)) {
             self::$_base_root = dirname($_SERVER['SCRIPT_NAME']);
         }
@@ -171,14 +161,12 @@ class Route
     }
 
     static private
-            function concatPath($debut, $fin, $separator = '/')
-    {
+            function concatPath($debut, $fin, $separator = '/') {
         $path = preg_replace("`[/\\\\]+(?:.[/\\\\]+)*`", $separator, $debut . $separator . $fin);
         return $path;
     }
 
-    static private function redirect($code, $message = "")
-    {
+    static private function redirect($code, $message = "") {
         http_response_code($code);
         if (isset(self::$_route[$code])) {
             self::$_route[$code]->executeAction();
@@ -188,8 +176,7 @@ class Route
         die();
     }
 
-    static public function getPath($name)
-    {
+    static public function getPath($name) {
         if (!isset(self::$_route[$name])) {
             throw new Exception("Ceste route n'existe pas !");
         }

@@ -13,5 +13,8 @@
         "psr-4": {
             "fzed51\\Core\\": "src"
         }
-    }
-}
+    },
+    "require-dev": {
+        "squizlabs/php_codesniffer": "2.*"
+    } 
+} 
