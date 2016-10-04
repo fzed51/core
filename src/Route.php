@@ -25,6 +25,11 @@ class Route {
     private $name;
 
     /**
+     * @var array règle de validation des paramètres
+     */
+    private $rules = [];
+
+    /**
      * @var array Liste des routes
      */
     static private $_route = [];
@@ -45,12 +50,9 @@ class Route {
     }
 
     static public function set($name, $path, $action) {
-        //$newRoute = new \stdClass();
-        //$newRoute->name = $name;
-        //$newRoute->path = $path;
-        //$newRoute->action = $action;
         $newRoute = new self($name, $path, $action);
         self::$_route[$name] = $newRoute;
+        return $newRoute;
     }
 
     static public function dispatch($uri) {
@@ -69,6 +71,7 @@ class Route {
 
     static private function match($uri) {
         foreach (self::$_route as $name => $route) {
+            $matches = null;
             if (preg_match($route->pathToRegEx(), $uri, $matches)) {
                 $_GET = array_merge($_GET, $matches);
                 return $name;
@@ -78,23 +81,22 @@ class Route {
     }
 
     private function pathToRegEx() {
-        $fnReplace = function ($matches) {
-            if (array_search($matches[0], ['.', '\\', '+', '*', '?', '[', '^', ']', '$', '(', ')', '{', '}', '=', '!', '<', '>', '|', ':', '-', '`'])) {
-                return '\\' . $matches[0];
-            } else {
-                $subPattern = '[A-Za-z0-9._-]+';
-                if (isset($matches[2])) {
-                    $subPattern = $matches[2];
-                }
-                return '(?<' . $matches[1] . '>' . $subPattern . ')';
+        $rules = $this->rules;
+        $fnReplace = function($matches) use($rules) {
+            $re = '/(^|[^\\\\])(\()([^?])/';
+            $subPattern = '[A-Za-z0-9._-]+';
+            if (isset($rules[$matches[1]])) {
+                $subPattern = preg_replace($re, '$1$2?:$3', $matches[2]);
             }
-            return '';
+            return '(?<' . $matches[1] . '>' . $subPattern . ')';
         };
-        $patterns = [
-            "/(?:{([^}:]+)(?:\\:([^}]*))?})|\\.|\\\\|\\+|\\*|\\?|\\[|\\^|\\]|\\$|\\(|\\)|\\{|\\}|\\=|\\!|\\<|\\>|\\||\\:|\\-|\\`/"
-        ];
+        $patterns = "/\{([^}\\\/]+)\}/";
         $path = '`^' . preg_replace_callback($patterns, $fnReplace, $this->path) . '$`';
         return $path;
+    }
+
+    public function setRules(array $rules) {
+        $this->rules = $rules;
     }
 
     private function executeAction() {
@@ -160,8 +162,7 @@ class Route {
         return self::$_base_root . '/';
     }
 
-    static private
-            function concatPath($debut, $fin, $separator = '/') {
+    static private function concatPath($debut, $fin, $separator = '/') {
         $path = preg_replace("`[/\\\\]+(?:.[/\\\\]+)*`", $separator, $debut . $separator . $fin);
         return $path;
     }
