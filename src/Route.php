@@ -51,6 +51,7 @@ class Route {
         //$newRoute->action = $action;
         $newRoute = new self($name, $path, $action);
         self::$_route[$name] = $newRoute;
+        return $newRoute;
     }
 
     static public function dispatch($uri) {

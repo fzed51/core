@@ -1,0 +1,1 @@
+phpdbg.exe -qrr .\vendor\kahlan\kahlan\bin\kahlan --coverage --reporter=bar
