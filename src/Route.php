@@ -2,6 +2,8 @@
 
 namespace fzed51\Core;
 
+use fzed51\Core\Exception\Routeur\Interne AS ExRouteInterne;
+
 /**
  * Description of Router
  *
@@ -35,17 +37,23 @@ class Route {
         $this->path = $path;
     }
 
+    public function getPath() {
+        return $this->path;
+    }
+
     function pathToRegEx() {
         $rules = $this->rules;
         $fnReplace = function($matches) use($rules) {
-            $re = '/(^|[^\\\\])(\()([^?])/';
             $subPattern = '[A-Za-z0-9._-]+';
+            // Recherche dans la règle des Capturing group pour les remplacer
+            // par des Non-capturing Group
+            $regex = '/(^|[^\\\\])(\()([^?])/';
             if (isset($rules[$matches[1]])) {
-                $subPattern = preg_replace($re, '$1$2?:$3', $matches[2]);
+                $subPattern = preg_replace($regex, '$1$2?:$3', $rules[$matches[1]]);
             }
             return '(?<' . $matches[1] . '>' . $subPattern . ')';
         };
-        $patterns = "/\{([^}\\\/]+)\}/";
+        $patterns = "/\{([^}\/]+)\}/";
         $path = '`^' . preg_replace_callback($patterns, $fnReplace, $this->path) . '$`';
         return $path;
     }
@@ -58,8 +66,7 @@ class Route {
         $matches = [];
         $action = $this->action;
         if (is_callable($action)) {
-            call_user_func($action);
-            return;
+            return call_user_func($action);
         }
         if (is_string($action) && preg_match('/^(\w+)@([\w\\\\]+)$/', $action, $matches)) {
             $nom_methode = $matches[1];
@@ -68,16 +75,11 @@ class Route {
                 $methodes = get_class_methods($nom_controleur);
                 if (array_search($nom_methode, $methodes) !== false) {
                     $controleur = new $nom_controleur();
-                    call_user_func([$controleur, $nom_methode]);
-                    return;
+                    return call_user_func([$controleur, $nom_methode]);
                 }
             }
         }
-        self::redirect(500, "Erreur d'executin de la page {$this->name}");
-    }
-
-    public function getPath() {
-        return $this->path;
+        throw new Exception("Impossible d'executer l'action de la route {$this->name}");
     }
 
 }
