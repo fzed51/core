@@ -1,5 +1,6 @@
 <?php
 
+use Kahlan\Arg;
 use fzed51\Core\Route;
 
 
@@ -51,22 +52,26 @@ describe('Route test', function() {
     });
 
     describe('Execution', function() {
-                
+
         it('should execut an route with action/controler action', function() {
             
-            class foo{ public function bar(){} }
+            class foo{ public function bar(){} public function bad(){} }
 
             $new_route = new Route('name_path', 'uri', 'bar@foo');
-            allow('foo')->toReceive('bat');
-            expect($new_route->executeAction());
+            expect('call_user_func')->toBeCalled()->with(Arg::toBeA('array'));
+            expect('call_user_func')->toBeCalled()->with(Arg::toContain('bar'));
+            $new_route->executeAction();
         });
-        /*
-        it('should execut an route with callback action', function() {
-            $new_route = new Route('name_path', 'uri', 'action@controleur');
-            expect($new_route->executeAction());
-        });
-        */
 
+        it('should execut an route with callback action', function() {
+
+            $callback = function(){};
+            
+            $new_route = new Route('name_path', 'uri', $callback);
+            expect('call_user_func')->toBeCalled()->with(Arg::toBe($callback));
+            $new_route->executeAction();
+        });
+        
     });
 
 });

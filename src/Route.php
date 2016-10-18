@@ -79,7 +79,7 @@ class Route {
                 }
             }
         }
-        throw new Exception("Impossible d'executer l'action de la route {$this->name}");
+        throw new \Exception("Impossible d'executer l'action de la route {$this->name}");
     }
 
 }
