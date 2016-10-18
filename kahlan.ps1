@@ -11,7 +11,7 @@ $env:TERM = 'ANSI'
 if($coverage){
     phpdbg.exe -qrr .\vendor\kahlan\kahlan\bin\kahlan --coverage --reporter=verbose
 }else{
-    php.exe -qrr .\vendor\kahlan\kahlan\bin\kahlan --reporter=verbose
+    php.exe .\vendor\kahlan\kahlan\bin\kahlan --reporter=verbose
 }
  
 pause
