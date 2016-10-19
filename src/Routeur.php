@@ -21,19 +21,20 @@ class Routeur {
      */
     private static $_base_root = null;
 
-    private function __construct($name, $path, $action) {
-        $this->name = $name;
-        $this->action = $action;
-        $this->path = $path;
-    }
+    private function __construct() {}
 
+    static public function clear(){
+        self::$_base_root = null;
+        self::$_route = [];
+    }
+ 
     static public function setBaseUrl($base_root) {
-        self::$_base_root = $base_root;
+        self::$_base_root = rtrim(str_replace("\\", "/", $base_root), "/");
     }
 
     static public function getBaseUrl() {
         if (is_null(self::$_base_root)) {
-            self::$_base_root = dirname($_SERVER['SCRIPT_NAME']);
+            self::setBaseUrl(dirname($_SERVER['SCRIPT_NAME']));
         }
         return self::$_base_root . '/';
     }
