@@ -67,9 +67,11 @@ describe('Route test', function() {
             $new_route->executeAction();
         });
         it('should execut an route with callback action', function() {
-            $callback = function(){expect(true)->toBe(true);};
-            $new_route = new Route('name_path', 'uri', $callback);
+            $this->runing = false;
+            $this->callback = function(){$this->runing = true;};
+            $new_route = new Route('name_path', 'uri', $this->callback);
             $new_route->executeAction();
+            expect($this->runing)->toBe(true);
         });
         
     });
