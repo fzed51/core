@@ -2,32 +2,14 @@
 
 namespace fzed51\Core;
 
+use fzed51\Core\Route;
+
 /**
  * Description of Router
  *
  * @author fabien.sanchez
  */
 class Routeur {
-
-    /**
-     * @var string Chemin/regex de la route
-     */
-    private $path;
-
-    /**
-     * @var callable/string action de la route
-     */
-    private $action;
-
-    /**
-     * @var string nom de la route
-     */
-    private $name;
-
-    /**
-     * @var array règle de validation des paramètres
-     */
-    private $rules = [];
 
     /**
      * @var array Liste des routes
@@ -49,10 +31,17 @@ class Routeur {
         self::$_base_root = $base_root;
     }
 
+    static public function getBaseUrl() {
+        if (is_null(self::$_base_root)) {
+            self::$_base_root = dirname($_SERVER['SCRIPT_NAME']);
+        }
+        return self::$_base_root . '/';
+    }
+
     static public function set($name, $path, $action) {
-        $newRoute = new self($name, $path, $action);
+        $newRoute = new Route($name, $path, $action);
         self::$_route[$name] = $newRoute;
-        //return $newRoute;
+        return $newRoute;
     }
 
     static public function dispatch($uri) {
@@ -60,13 +49,18 @@ class Routeur {
 
         $name = self::match($uri);
 
-        if (!$name && ($uri == '' || $uri == 'home' || $uri == 'index.html') && isset(self::$_route['home'])) {
-            self::$_route['home']->executeAction();
-        } elseif (isset(self::$_route[$name])) {
-            self::$_route[$name]->executeAction();
-        } else {
-            self::redirect(404, "Page introuvable ...");
+        try{
+            if (!$name && ($uri == '' || $uri == 'home' || $uri == 'index.html') && isset(self::$_route['home'])) {
+                self::$_route['home']->executeAction();
+            } elseif (isset(self::$_route[$name])) {
+                self::$_route[$name]->executeAction();
+            } else {
+                self::redirect(404, "Page introuvable ...");
+            }
+        } catch (\Exception $e){
+            self::redirect(500, "Erreur serveur ...");
         }
+        
     }
 
     static private function match($uri) {
@@ -78,47 +72,6 @@ class Routeur {
             }
         }
         return false;
-    }
-
-    private function pathToRegEx() {
-        $rules = $this->rules;
-        $fnReplace = function($matches) use($rules) {
-            $re = '/(^|[^\\\\])(\()([^?])/';
-            $subPattern = '[A-Za-z0-9._-]+';
-            if (isset($rules[$matches[1]])) {
-                $subPattern = preg_replace($re, '$1$2?:$3', $matches[2]);
-            }
-            return '(?<' . $matches[1] . '>' . $subPattern . ')';
-        };
-        $patterns = "/\{([^}\\\/]+)\}/";
-        $path = '`^' . preg_replace_callback($patterns, $fnReplace, $this->path) . '$`';
-        return $path;
-    }
-
-    public function setRules(array $rules) {
-        $this->rules = $rules;
-    }
-
-    private function executeAction() {
-        $matches = [];
-        $action = $this->action;
-        if (is_callable($action)) {
-            call_user_func($action);
-            return;
-        }
-        if (is_string($action) && preg_match('/^(\w+)@([\w\\\\]+)$/', $action, $matches)) {
-            $nom_methode = $matches[1];
-            $nom_controleur = $matches[2];
-            if (class_exists($nom_controleur)) {
-                $methodes = get_class_methods($nom_controleur);
-                if (array_search($nom_methode, $methodes) !== false) {
-                    $controleur = new $nom_controleur();
-                    call_user_func([$controleur, $nom_methode]);
-                    return;
-                }
-            }
-        }
-        self::redirect(500, "Erreur d'executin de la page {$this->name}");
     }
 
     static public function urlFor($name, array $options = [], array $attrib = []) {
@@ -153,13 +106,6 @@ class Routeur {
             }
         }
         return self::concatPath($base, $url, '/');
-    }
-
-    static public function getBaseUrl() {
-        if (is_null(self::$_base_root)) {
-            self::$_base_root = dirname($_SERVER['SCRIPT_NAME']);
-        }
-        return self::$_base_root . '/';
     }
 
     static private function concatPath($debut, $fin, $separator = '/') {
