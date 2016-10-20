@@ -43,33 +43,36 @@ describe('Routeur test', function() {
         });
 
         it('should dispatch Route from URI', function(){
-            alow('die')->andRun(function(){});
+            allow(Routeur::class)->toReceive('::stopExecution')->andRun(function(){});
 
-            $this->runing1 = false;
-            $this->runing2 = false;
-            $this->callback1 = function() {$this->runing1 = true;};
-            $this->callback2 = function() {$this->runing2 = true;};
+            $callback1 = function(){echo "callback n°1 OK";};
+            $callback2 = function(){echo "callback n°2 OK";};
 
-            Routeur::set('name1', 'uri1', $this->callback1);
-            Routeur::set('name2', 'uri2', $this->callback2);
-            Routeur::dispatch('uri1');
-
-            expect($this->runing1)->toBe(true);  
-            expect($this->runing2)->not->toBe(true);            
+            Routeur::set('name1', 'uri1', $callback1);
+            Routeur::set('name2', 'uri2', $callback2);
+            
+            $closure1 = function(){Routeur::dispatch('uri1');};
+            $closure2 = function(){Routeur::dispatch('uri2');};
+            expect($closure1)->toEcho('callback n°1 OK');
+            expect($closure2)->toEcho('callback n°2 OK');
         });
-        it('should interpret the parameters in the URL and register them in $_GET', function(){
-            alow('die')->andRun(function(){});
 
-            $this->runing = false;
-            $this->callback = function() {
-                    $this->runing = true;
-                    expect($_GET['id'])->toBeEq(123);
+        it('should interpret the parameters in the URI and register them in $_GET', function(){
+            allow(Routeur::class)->toReceive('::stopExecution')->andRun(function(){});
+
+            $callback = function() {
+                if(isset($_GET['id']))
+                    echo 'id : ' . $_GET['id'];
+                else
+                    echo 'id is na';
                 };
 
-            Routeur::set('name1', 'uri1/{id}', $this->callback);
-            Routeur::dispatch('/uri1/123');
+            Routeur::set('name1', 'uri1/{id}', $callback);
             
-            expect($this->runing)->toBe(true);
+            $closure = function(){Routeur::dispatch('/uri1/123');};
+            
+            expect($callback)->toEcho('id is na');
+            expect($closure)->toEcho('id : 123');
         });
 
     });

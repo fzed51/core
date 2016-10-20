@@ -28,24 +28,28 @@ class Routeur {
         self::$_route = [];
     }
  
-    static public function setBaseUrl($base_root) {
+    static public function setBaseUrl($base_root) 
+    {
         self::$_base_root = rtrim(str_replace("\\", "/", $base_root), "/");
     }
 
-    static public function getBaseUrl() {
+    static public function getBaseUrl() 
+    {
         if (is_null(self::$_base_root)) {
             self::setBaseUrl(dirname($_SERVER['SCRIPT_NAME']));
         }
         return self::$_base_root . '/';
     }
 
-    static public function set($name, $path, $action) {
+    static public function set($name, $path, $action) 
+    {
         $newRoute = new Route($name, $path, $action);
         self::$_route[$name] = $newRoute;
         return $newRoute;
     }
 
-    static public function dispatch($uri) {
+    static public function dispatch($uri) 
+    {
         $uri = ltrim($uri, '/');
 
         $name = self::match($uri);
@@ -64,7 +68,8 @@ class Routeur {
         
     }
 
-    static private function match($uri) {
+    static private function match($uri) 
+    {
         foreach (self::$_route as $name => $route) {
             $matches = null;
             if (preg_match($route->pathToRegEx(), $uri, $matches)) {
@@ -75,7 +80,8 @@ class Routeur {
         return false;
     }
 
-    static public function urlFor($name, array $options = [], array $attrib = []) {
+    static public function urlFor($name, array $options = [], array $attrib = []) 
+    {
         $base = self::getBaseUrl();
         if (!isset(self::$_route[$name])) {
             return self::concatPath($base, '/', '/');
@@ -109,22 +115,30 @@ class Routeur {
         return self::concatPath($base, $url, '/');
     }
 
-    static private function concatPath($debut, $fin, $separator = '/') {
+    static private function concatPath($debut, $fin, $separator = '/') 
+    {
         $path = preg_replace("`[/\\\\]+(?:.[/\\\\]+)*`", $separator, $debut . $separator . $fin);
         return $path;
     }
 
-    static private function redirect($code, $message = "") {
+    static private function redirect($code, $message = "") 
+    {
         http_response_code($code);
         if (isset(self::$_route[$code])) {
             self::$_route[$code]->executeAction();
         } else {
             echo $message;
         }
+        self::stopExecution();
+    }
+
+    static private function stopExecution()
+    {
         die();
     }
 
-    static public function getPath($name) {
+    static public function getPath($name) 
+    {
         if (!isset(self::$_route[$name])) {
             throw new Exception("Ceste route n'existe pas !");
         }
