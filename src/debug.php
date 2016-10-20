@@ -1,12 +1,11 @@
 <?php
 
-if(!extension_loaded('xdebug')){
-
+if (!extension_loaded('xdebug')) {
     ini_set('html_errors', 'on');
     ini_set('error_prepend_string', '<div style="color: #000;text-shadow: #bbb 1px 1px 1px;white-space:pre-wrap;background: repeating-linear-gradient(45deg,rgba(255,235,59,0.2),rgba(255,235,59,0.25) 10px,rgba(244,67,54,0.2) 10px,rgba(244,67,54,0.25) 20px) rgba(255,255,255,0.5);border:#f00 solid 0.5em;border-radius: 10px;margin: 10px;padding: 0 1em;font: 17px monospace;line-height: 15px;">');
     ini_set('error_append_string', '<br/></div>');
 
-    set_error_handler(function($errno, $errstr, $errfile, $errline, array $errcontext) {
+    set_error_handler(function ($errno, $errstr, $errfile, $errline, array $errcontext) {
 
         $backtrace = debug_backtrace();
         //array_shift($backtrace); // elimine la fonction de handler
@@ -21,7 +20,7 @@ if(!extension_loaded('xdebug')){
                 exit(1);
                 break;
 
-            case E_WARNING :
+            case E_WARNING:
             case E_USER_WARNING:
                 echo "<b>ALERTE</b> [$errno] $errstr<br />\n";
                 echo "sur la ligne <strong>$errline</strong> dans le fichier <strong>$errfile</strong><br />\n";
@@ -44,5 +43,4 @@ if(!extension_loaded('xdebug')){
         echo '</div>';
         return true;
     });
-
 }
