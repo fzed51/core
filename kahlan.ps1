@@ -1,5 +1,6 @@
 Param(
-    [switch]$coverage
+    [switch]$coverage,
+    [string]$reporter = "verbose"
 )
 
 $oldcomspec = $env:ComSpec
@@ -9,9 +10,9 @@ $env:ComSpec = $null;
 $env:TERM = 'ANSI'
 
 if($coverage){
-    phpdbg.exe -qrr .\vendor\kahlan\kahlan\bin\kahlan --coverage --reporter=verbose
+    phpdbg.exe -qrr .\vendor\kahlan\kahlan\bin\kahlan --coverage --reporter=$reporter
 }else{
-    php.exe .\vendor\kahlan\kahlan\bin\kahlan --reporter=verbose
+    php.exe .\vendor\kahlan\kahlan\bin\kahlan --reporter=$reporter
 }
  
 pause
