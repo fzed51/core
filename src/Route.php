@@ -2,14 +2,13 @@
 
 namespace fzed51\Core;
 
-use fzed51\Core\Exception\Routeur\Interne AS ExRouteInterne;
-
 /**
  * Description of Router
  *
  * @author fabien.sanchez
  */
-class Route {
+class Route
+{
 
     /**
      * @var string Chemin/regex de la route
@@ -31,19 +30,22 @@ class Route {
      */
     private $rules = [];
 
-    function __construct($name, $path, $action) {
+    public function __construct($name, $path, $action)
+    {
         $this->name = $name;
         $this->action = $action;
         $this->path = $path;
     }
 
-    public function getPath() {
+    public function getPath()
+    {
         return $this->path;
     }
 
-    function pathToRegEx() {
+    public function pathToRegEx()
+    {
         $rules = $this->rules;
-        $fnReplace = function($matches) use($rules) {
+        $fnReplace = function ($matches) use ($rules) {
             $subPattern = '[A-Za-z0-9._-]+';
             // Recherche dans la règle des Capturing group pour les remplacer
             // par des Non-capturing Group
@@ -58,11 +60,13 @@ class Route {
         return $path;
     }
 
-    public function setRules(array $rules) {
+    public function setRules(array $rules)
+    {
         $this->rules = $rules;
     }
 
-    function executeAction() {
+    public function executeAction()
+    {
         $matches = [];
         $action = $this->action;
         if (is_callable($action)) {
@@ -81,5 +85,4 @@ class Route {
         }
         throw new \Exception("Impossible d'executer l'action de la route {$this->name}");
     }
-
 }
