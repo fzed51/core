@@ -62,16 +62,16 @@ describe('Route test', function() {
     describe('Execution', function() {
 
         it('should execut an route with action/controler action', function() {
-            class foo{ public function bar(){expect(true)->toBe(true);} public function bad(){expect(true)->toBe(false);} }
+            class foo{ public function bar(){echo 'bar@foo ok';} public function bad(){echo 'bad@foo ko';} }
             $new_route = new Route('name_path', 'uri', 'bar@foo');
-            $new_route->executeAction();
+            $closure = function() use ($new_route){$new_route->executeAction();};
+            expect($closure)->toEcho('bar@foo ok');
         });
         it('should execut an route with callback action', function() {
-            $this->runing = false;
-            $this->callback = function(){$this->runing = true;};
-            $new_route = new Route('name_path', 'uri', $this->callback);
-            $new_route->executeAction();
-            expect($this->runing)->toBe(true);
+            $callback = function(){echo "callback ok";};
+            $new_route = new Route('name_path', 'uri', $callback);
+            $closure = function() use ($new_route){$new_route->executeAction();};
+            expect($closure)->toEcho('callback ok');
         });
         
     });
