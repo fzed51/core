@@ -85,4 +85,21 @@ class Route
         }
         throw new \Exception("Impossible d'executer l'action de la route {$this->name}");
     }
+
+    public function getUrl(array $options = [], array $query = [])
+    {
+        $regEx = "/\\{([a-zA-Z0-9_.]+)\\}/";
+        $parametres = [];
+        $url = $this->path;
+        preg_match_all($regEx, $url, $parametres);
+        foreach ($parametres[1] as $parametre) {
+            $url = preg_replace($regEx, $options[$parametre], $url);
+        }
+        if (count($query) > 0) {
+            $url .= '?';
+            $url .= http_build_query($query);
+        }
+        return $url;
+    }
+
 }

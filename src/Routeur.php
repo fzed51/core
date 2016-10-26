@@ -83,39 +83,13 @@ class Routeur
         return false;
     }
 
-    public static function urlFor($name, array $options = [], array $attrib = [])
+    public static function urlFor($name, array $options = [], array $query = [])
     {
         $base = self::getBaseUrl();
         if (!isset(self::$route[$name])) {
             return self::concatPath($base, '/', '/');
         }
-        /* $url = 'index.php?' . self::$route[$name]->path;
-          if (count($options) > 0) {
-          foreach ($options as $option => $value) {
-          $url = str_replace('{' . $option . '}', urldecode($value), $url);
-          }
-          }
-         */
-        $regEx = "/\\{([a-zA-Z0-9_.]+)\\}/";
-        $parametres = [];
-        $url = self::$route[$name]->path;
-        preg_match_all($regEx, $url, $parametres);
-        foreach ($parametres[1] as $parametre) {
-            $url = preg_replace($regEx, $options[$parametre], $url);
-        }
-        if (count($attrib) > 0) {
-            $url .= '?';
-            $start = true;
-            foreach ($attrib as $key => $value) {
-                if ($start) {
-                    $start = false;
-                } else {
-                    $url .= '&';
-                }
-                $url .= $key . '=' . urldecode($value);
-            }
-        }
-        return self::concatPath($base, $url, '/');
+        return self::concatPath($base, self::$route[$name]->getUrl($options, $query), '/');
     }
 
     private static function concatPath($debut, $fin, $separator = '/')
@@ -140,11 +114,19 @@ class Routeur
         die();
     }
 
-    public static function getPath($name)
+    public static function getPaths($format = 'php')
     {
-        if (!isset(self::$route[$name])) {
-            throw new Exception("Ceste route n'existe pas !");
+        $liste = [];
+        foreach (self::$route as $name => $route) {
+            $liste[$name] = self::concatPath(self::getBaseUrl(), self::$route[$name]->getPath());
         }
-        return self::concatPath(self::getBaseUrl(), self::$route[$name]->path);
+        switch($format){
+            case 'php':
+                return $liste;
+            case 'json':
+                return json_encode($liste);
+            default:
+                throw new \Exception("format non supporté");
+        }
     }
 }
