@@ -5,11 +5,13 @@ if (isset($_SESSION['CSRF'])) {
 }
 $_SESSION['CSRF'] = sha1(uniqid() . time() . 'FabienSanchez');
 
-function inputCsrf() {
+function inputCsrf()
+{
     return '<input type="hidden" name="CSRF" value="' . $_SESSION['CSRF'] . '">';
 }
 
-function checkPostCsrf() {
+function checkPostCsrf()
+{
     if (!isset($_SESSION['OLD_CSRF']) || !isset($_POST['CSRF']) || $_SESSION['OLD_CSRF'] <> $_POST['CSRF']) {
         if (isAjaxMethode()) {
             http_response_code(401);
@@ -21,7 +23,8 @@ function checkPostCsrf() {
     }
 }
 
-function checkGetCsrf() {
+function checkGetCsrf()
+{
     if (!isset($_SESSION['OLD_CSRF']) || !isset($_GET['CSRF']) || $_SESSION['OLD_CSRF'] <> $_GET['CSRF']) {
         setFlash('error', "Vous n'etes pas autorisé  à effectuer cette action.");
         redirect(401, url('home'));
@@ -29,15 +32,18 @@ function checkGetCsrf() {
     }
 }
 
-function csrfBack() {
+function csrfBack()
+{
     $_SESSION['CSRF'] = $_SESSION['OLD_CSRF'];
 }
 
-function getCsrf() {
+function getCsrf()
+{
     return $_SESSION['CSRF'];
 }
 
-function setFlash($type, $message) {
+function setFlash($type, $message)
+{
     $type = strtolower($type);
     if (!isset($_SESSION['FLASH'])) {
         $_SESSION['FLASH'] = [];
@@ -53,7 +59,8 @@ define("FLASH_WARNING", "warning");
 define("FLASH_SUCCES", "succes");
 define("FLASH_INFO", "info");
 
-function getFlashs() {
+function getFlashs()
+{
     $out = '';
     if (isset($_SESSION['FLASH'])) {
         foreach ($_SESSION['FLASH'] as $type => $flashs) {

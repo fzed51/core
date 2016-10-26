@@ -1,7 +1,8 @@
 <?php
 
-function publish($filePage, $data = []) {
-    $hermeticRender = function($____f, $____d) {
+function publish($filePage, $data = [])
+{
+    $hermeticRender = function ($____f, $____d) {
         extract($____d);
         unset($____d);
         ob_start();
@@ -45,12 +46,14 @@ function publish($filePage, $data = []) {
     echo $body;
 }
 
-function concatPath($debut, $fin, $separator = '/') {
+function concatPath($debut, $fin, $separator = '/')
+{
     $path = preg_replace("/[\\/\\\\]+(?:.[\\/\\\\]+)*/", $separator, $debut . $separator . $fin);
     return $path;
 }
 
-function startWith($string, $search, $iCase = true) {
+function startWith($string, $search, $iCase = true)
+{
     if ($iCase) {
         return strtoupper(substr($string, strlen($search))) == strtoupper($search);
     } else {
@@ -58,24 +61,29 @@ function startWith($string, $search, $iCase = true) {
     }
 }
 
-function url($nom_url, array $options = [], array $attrib = []) {
+function url($nom_url, array $options = [], array $attrib = [])
+{
     return \Route::urlFor($nom_url, $options, $attrib);
 }
 
-function asset($partial_url) {
+function asset($partial_url)
+{
     $url = concatPath(\Route::getBaseUrl(), $partial_url);
     return $url;
 }
 
-function get($arg, $defaut = null) {
+function get($arg, $defaut = null)
+{
     return (isset($_GET[$arg]) ? $_GET[$arg] : $defaut);
 }
 
-function post($arg, $defaut = NULL) {
+function post($arg, $defaut = null)
+{
     return (isset($_POST[$arg]) ? $_POST[$arg] : $defaut);
 }
 
-function session($arg, $defaut = NULL) {
+function session($arg, $defaut = null)
+{
     if (session_status() === PHP_SESSION_ACTIVE) {
         return (isset($_SESSION[$arg]) ? $_SESSION[$arg] : $defaut);
     } else {
@@ -83,32 +91,37 @@ function session($arg, $defaut = NULL) {
     }
 }
 
-function getPage() {
+function getPage()
+{
     return get('p', 'index');
 }
 
-function getUrl() {
+function getUrl()
+{
     $requestUri = explode('?', $_SERVER['REQUEST_URI']);
     $baseScript = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
     $url = substr($requestUri[0], strlen($baseScript));
     return $url;
 }
 
-function afficheErreurException(Exception $e) {
+function afficheErreurException(Exception $e)
+{
     http_response_code(500);
     echo "<div class = \"error\">";
     echo ($e->getMessage());
     echo "</div>";
 }
 
-function afficheErreurMessage($message) {
+function afficheErreurMessage($message)
+{
     http_response_code(500);
     echo "<div class = \"error\">";
     echo nl2br($message);
     echo "</div>";
 }
 
-function fetchall2table(array $fetchall, array $fields) {
+function fetchall2table(array $fetchall, array $fields)
+{
     $get = function ($data, $property) {
         if (is_array($data) && isset($data[$property])) {
             return $data[$property];
@@ -149,14 +162,16 @@ function fetchall2table(array $fetchall, array $fields) {
     return $contents;
 }
 
-function historiz() {
+function historiz()
+{
     if (!isset($_SESSION['histo'])) {
         $_SESSION['histo'] = [];
     }
     array_push($_SESSION['histo'], $_SERVER['REQUEST_URI']);
 }
 
-function urlGoBack() {
+function urlGoBack()
+{
     if (isset($_SESSION['histo']) && count($_SESSION['histo']) > 0) {
         array_pop($_SESSION['histo']);
         return array_pop($_SESSION['histo']);
@@ -165,7 +180,8 @@ function urlGoBack() {
     }
 }
 
-function dd($variable) {
+function dd($variable)
+{
     echo PHP_EOL;
     echo '<pre>';
     var_dump($variable);
@@ -173,11 +189,13 @@ function dd($variable) {
     exit(0);
 }
 
-function html($message, $charset = 'cp1252') {
+function html($message, $charset = 'cp1252')
+{
     return htmlentities($message, ENT_COMPAT | ENT_HTML401, 'cp1252');
 }
 
-function redirect($num, $url) {
+function redirect($num, $url)
+{
     http_response_code($num);
     if (!isAjaxMethode()) {
         header("Location: $url");
@@ -185,26 +203,31 @@ function redirect($num, $url) {
     exit(1);
 }
 
-function isPostMethode() {
+function isPostMethode()
+{
     if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
         return true;
     }
     return false;
 }
 
-function isAjaxMethode() {
+function isAjaxMethode()
+{
     if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') {
         return true;
     }
     return false;
 }
 
-function MyJsonEncode($data, $option = []) {
+function MyJsonEncode($data, $option = [])
+{
 
     $option = array_merge(
-            [
+        [
         "STRING2HTML" => false
-            ], $option);
+        ],
+        $option
+    );
 
     $is_assoc = function ($array) {
         foreach (array_keys($array) as $k => $v) {
@@ -283,20 +306,22 @@ function MyJsonEncode($data, $option = []) {
         case "NULL":
             $out = ('null');
             break;
-        default :
+        default:
             throw new RuntimeException("La donnée passé en paramètre de la fonction MyJsonEncode n'est pas valide");
     }
     return $out;
 }
 
-function hoock($string) {
+function hoock($string)
+{
     $handle = fopen(__DIR__ . '/log.txt', 'a+');
     fwrite($handle, $string . "\r\n");
     fclose($handle);
     return $string;
 }
 
-function bitConverter($val, $unit = '') {
+function bitConverter($val, $unit = '')
+{
     $units = [
         'o', 'Ko', 'Mo', 'Go', 'To', 'Po'
     ];
@@ -315,7 +340,8 @@ function bitConverter($val, $unit = '') {
     return '' . round($val, 3) . ' ' . $units[$index];
 }
 
-function pathToTemplate($templateName, $fromPage = false) {
+function pathToTemplate($templateName, $fromPage = false)
+{
     $templateFile = 'template/' . str_replace('.', '/', $templateName) . '.phtml';
     if ($fromPage) {
         $templateFile = '../' . $templateFile;
@@ -323,7 +349,8 @@ function pathToTemplate($templateName, $fromPage = false) {
     return $templateFile;
 }
 
-function trace($message) {
+function trace($message)
+{
     $handle = fopen('./log.txt', 'a+');
     fwrite($handle, '[' . date('r') . '] > ' . $message . PHP_EOL);
     fclose($handle);
@@ -337,7 +364,8 @@ function trace($message) {
  * @param string $value propriété qui servira de valeur
  * @return array
  */
-function extractFromObject(Array $list_object, $key, $value) {
+function extractFromObject(array $list_object, $key, $value)
+{
     $out = [];
     foreach ($list_object as $object) {
         $out[$object->{$key}] = $object->{$value};

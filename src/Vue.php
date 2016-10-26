@@ -7,7 +7,8 @@ namespace fzed51\Core;
  *
  * @author fabien.sanchez
  */
-class Vue {
+class Vue
+{
 
     const WEBPATH = './public';
 
@@ -20,14 +21,16 @@ class Vue {
     private static $_script;
     private static $_script_cache = [];
 
-    public static function getBaseRoot() {
+    public static function getBaseRoot()
+    {
         if (is_null(self::$_base_root)) {
             self::$_base_root = dirname($_SERVER['SCRIPT_NAME']);
         }
         return self::$_base_root;
     }
 
-    public static function addStyle($style, $first = false) {
+    public static function addStyle($style, $first = false)
+    {
         $key = md5($style);
         if (!isset(self::$_style_cache[$key])) {
             self::$_style_cache[$key] = true;
@@ -39,7 +42,8 @@ class Vue {
         }
     }
 
-    public static function addFileStyle($file_style, $first = false) {
+    public static function addFileStyle($file_style, $first = false)
+    {
         $key = md5($file_style);
         if (!isset(self::$_style_cache[$key])) {
             self::$_style_cache[$key] = true;
@@ -55,19 +59,23 @@ class Vue {
         }
     }
 
-    public static function style() {
+    public static function style()
+    {
         return self::$_style;
     }
 
-    public static function setNav($nav) {
+    public static function setNav($nav)
+    {
         self::$_nav = $nav;
     }
 
-    public static function nav() {
+    public static function nav()
+    {
         return self::$_nav;
     }
 
-    public static function prependContent($content) {
+    public static function prependContent($content)
+    {
         $key = md5($content);
         if (!isset(self::$_content_cache[$key])) {
             self::$_content_cache[$key] = true;
@@ -75,7 +83,8 @@ class Vue {
         }
     }
 
-    public static function setContent($content) {
+    public static function setContent($content)
+    {
         $key = md5($content);
         if (!isset(self::$_content_cache[$key])) {
             self::$_content_cache = [];
@@ -84,7 +93,8 @@ class Vue {
         }
     }
 
-    public static function appendContent($content) {
+    public static function appendContent($content)
+    {
         $key = md5($content);
         if (!isset(self::$_content_cache[$key])) {
             self::$_content_cache[$key] = true;
@@ -92,11 +102,13 @@ class Vue {
         }
     }
 
-    public static function content() {
+    public static function content()
+    {
         return self::$_content;
     }
 
-    public static function addScript($script, $first = false) {
+    public static function addScript($script, $first = false)
+    {
         $key = md5($script);
         if (!isset(self::$_script_cache[$key])) {
             self::$_script_cache[$key] = true;
@@ -108,7 +120,8 @@ class Vue {
         }
     }
 
-    public static function addFileScript($file_script, $first = false) {
+    public static function addFileScript($file_script, $first = false)
+    {
         $key = md5($file_script);
         if (!isset(self::$_script_cache[$key])) {
             self::$_script_cache[$key] = true;
@@ -124,8 +137,8 @@ class Vue {
         }
     }
 
-    public static function script() {
+    public static function script()
+    {
         return self::$_script;
     }
-
 }

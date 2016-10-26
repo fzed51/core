@@ -7,7 +7,8 @@ namespace fzed51\Core;
  *
  * @author fabien.sanchez
  */
-class Route {
+class Route
+{
 
     /**
      * @var string Chemin/regex de la route
@@ -25,85 +26,51 @@ class Route {
     private $name;
 
     /**
-     * @var array Liste des routes
+     * @var array règle de validation des paramètres
      */
-    static private $_route = [];
+    private $rules = [];
 
-    /**
-     * @var string chemin de base pour la construction des liens
-     */
-    private static $_base_root = null;
-
-    private function __construct($name, $path, $action) {
+    public function __construct($name, $path, $action)
+    {
         $this->name = $name;
         $this->action = $action;
         $this->path = $path;
     }
 
-    static public function setBaseUrl($base_root) {
-        self::$_base_root = $base_root;
+    public function getPath()
+    {
+        return $this->path;
     }
 
-    static public function set($name, $path, $action) {
-        //$newRoute = new \stdClass();
-        //$newRoute->name = $name;
-        //$newRoute->path = $path;
-        //$newRoute->action = $action;
-        $newRoute = new self($name, $path, $action);
-        self::$_route[$name] = $newRoute;
-        return $newRoute;
-    }
-
-    static public function dispatch($uri) {
-        $uri = ltrim($uri, '/');
-
-        $name = self::match($uri);
-
-        if (!$name && ($uri == '' || $uri == 'home' || $uri == 'index.html') && isset(self::$_route['home'])) {
-            self::$_route['home']->executeAction();
-        } elseif (isset(self::$_route[$name])) {
-            self::$_route[$name]->executeAction();
-        } else {
-            self::redirect(404, "Page introuvable ...");
-        }
-    }
-
-    static private function match($uri) {
-        foreach (self::$_route as $name => $route) {
-            if (preg_match($route->pathToRegEx(), $uri, $matches)) {
-                $_GET = array_merge($_GET, $matches);
-                return $name;
+    public function pathToRegEx()
+    {
+        $rules = $this->rules;
+        $fnReplace = function ($matches) use ($rules) {
+            $subPattern = '[A-Za-z0-9._-]+';
+            // Recherche dans la règle des Capturing group pour les remplacer
+            // par des Non-capturing Group
+            $regex = '/(^|[^\\\\])(\()([^?])/';
+            if (isset($rules[$matches[1]])) {
+                $subPattern = preg_replace($regex, '$1$2?:$3', $rules[$matches[1]]);
             }
-        }
-        return false;
-    }
-
-    private function pathToRegEx() {
-        $fnReplace = function ($matches) {
-            if (array_search($matches[0], ['.', '\\', '+', '*', '?', '[', '^', ']', '$', '(', ')', '{', '}', '=', '!', '<', '>', '|', ':', '-', '`'])) {
-                return '\\' . $matches[0];
-            } else {
-                $subPattern = '[A-Za-z0-9._-]+';
-                if (isset($matches[2])) {
-                    $subPattern = $matches[2];
-                }
-                return '(?<' . $matches[1] . '>' . $subPattern . ')';
-            }
-            return '';
+            return '(?<' . $matches[1] . '>' . $subPattern . ')';
         };
-        $patterns = [
-            "/(?:{([^}:]+)(?:\\:([^}]*))?})|\\.|\\\\|\\+|\\*|\\?|\\[|\\^|\\]|\\$|\\(|\\)|\\{|\\}|\\=|\\!|\\<|\\>|\\||\\:|\\-|\\`/"
-        ];
+        $patterns = "/\{([^}\/]+)\}/";
         $path = '`^' . preg_replace_callback($patterns, $fnReplace, $this->path) . '$`';
         return $path;
     }
 
-    private function executeAction() {
+    public function setRules(array $rules)
+    {
+        $this->rules = $rules;
+    }
+
+    public function executeAction()
+    {
         $matches = [];
         $action = $this->action;
         if (is_callable($action)) {
-            call_user_func($action);
-            return;
+            return call_user_func($action);
         }
         if (is_string($action) && preg_match('/^(\w+)@([\w\\\\]+)$/', $action, $matches)) {
             $nom_methode = $matches[1];
@@ -112,76 +79,27 @@ class Route {
                 $methodes = get_class_methods($nom_controleur);
                 if (array_search($nom_methode, $methodes) !== false) {
                     $controleur = new $nom_controleur();
-                    call_user_func([$controleur, $nom_methode]);
-                    return;
+                    return call_user_func([$controleur, $nom_methode]);
                 }
             }
         }
-        self::redirect(500, "Erreur d'executin de la page {$this->name}");
+        throw new \Exception("Impossible d'executer l'action de la route {$this->name}");
     }
 
-    static public function urlFor($name, array $options = [], array $attrib = []) {
-        $base = self::getBaseUrl();
-        if (!isset(self::$_route[$name])) {
-            return self::concatPath($base, '/', '/');
-        }
-        /* $url = 'index.php?' . self::$_route[$name]->path;
-          if (count($options) > 0) {
-          foreach ($options as $option => $value) {
-          $url = str_replace('{' . $option . '}', urldecode($value), $url);
-          }
-          }
-         */
-        $regEx = "/\\{([a-zA-Z0-9_.]+)(?:\\:[^\}]+)?}/";
+    public function getUrl(array $options = [], array $query = [])
+    {
+        $regEx = "/\\{([a-zA-Z0-9_.]+)\\}/";
         $parametres = [];
-        $url = self::$_route[$name]->path;
+        $url = $this->path;
         preg_match_all($regEx, $url, $parametres);
         foreach ($parametres[1] as $parametre) {
             $url = preg_replace($regEx, $options[$parametre], $url);
         }
-        if (count($attrib) > 0) {
+        if (count($query) > 0) {
             $url .= '?';
-            $start = true;
-            foreach ($attrib as $key => $value) {
-                if ($start) {
-                    $start = false;
-                } else {
-                    $url .= '&';
-                }
-                $url .= $key . '=' . urldecode($value);
-            }
+            $url .= http_build_query($query);
         }
-        return self::concatPath($base, $url, '/');
-    }
-
-    static public function getBaseUrl() {
-        if (is_null(self::$_base_root)) {
-            self::$_base_root = dirname($_SERVER['SCRIPT_NAME']);
-        }
-        return self::$_base_root . '/';
-    }
-
-    static private
-            function concatPath($debut, $fin, $separator = '/') {
-        $path = preg_replace("`[/\\\\]+(?:.[/\\\\]+)*`", $separator, $debut . $separator . $fin);
-        return $path;
-    }
-
-    static private function redirect($code, $message = "") {
-        http_response_code($code);
-        if (isset(self::$_route[$code])) {
-            self::$_route[$code]->executeAction();
-        } else {
-            echo $message;
-        }
-        die();
-    }
-
-    static public function getPath($name) {
-        if (!isset(self::$_route[$name])) {
-            throw new Exception("Ceste route n'existe pas !");
-        }
-        return self::concatPath(self::getBaseUrl(), self::$_route[$name]->path);
+        return $url;
     }
 
 }

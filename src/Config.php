@@ -7,12 +7,14 @@ namespace fzed51\Core;
  *
  * @author fabien.sanchez
  */
-class Config {
+class Config
+{
 
     static private $Init = false;
     static private $Config = [];
 
-    static public function initializ($configFileName = '') {
+    public static function initializ($configFileName = '')
+    {
         self::registerDotEnv(self::parseDotEnv());
         if ($configFileName != '') {
             self::registerConfig(self::parseConfigFile($configFileName));
@@ -20,7 +22,8 @@ class Config {
         self::$Init = true;
     }
 
-    static public function get($key, $defaut = null) {
+    public static function get($key, $defaut = null)
+    {
         self::autoInitializ();
         if (self::has($key)) {
             return self::$Config[$key];
@@ -28,25 +31,29 @@ class Config {
         return $defaut;
     }
 
-    static public function set($key, $valuye) {
+    public static function set($key, $valuye)
+    {
         self::autoInitializ();
         self::$Config[$key] = $valuye;
     }
 
-    static public function has($key) {
+    public static function has($key)
+    {
         if (isset(self::$Config[$key])) {
             return true;
         }
         return false;
     }
 
-    static private function autoInitializ() {
+    private static function autoInitializ()
+    {
         if (!self::$Init) {
             self::initializ();
         }
     }
 
-    static private function parseDotEnv() {
+    private static function parseDotEnv()
+    {
         $env = [];
         if (file_exists('.env')) {
             $envFile = file('.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -62,7 +69,8 @@ class Config {
         return $env;
     }
 
-    static private function parseConfigFile($configFileName) {
+    private static function parseConfigFile($configFileName)
+    {
         try {
             if (file_exists($configFileName)) {
                 $config = include($configFileName);
@@ -76,15 +84,16 @@ class Config {
         return [];
     }
 
-    static private function registerDotEnv(array $dotEnv) {
+    private static function registerDotEnv(array $dotEnv)
+    {
         foreach ($dotEnv as $key => $value) {
             $_ENV[$key] = $value;
             putenv("$key=$value");
         }
     }
 
-    static private function registerConfig(array $config) {
+    private static function registerConfig(array $config)
+    {
         self::$Config = $config;
     }
-
 }
