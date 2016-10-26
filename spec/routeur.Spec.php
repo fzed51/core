@@ -37,14 +37,17 @@ describe('Routeur test', function() {
     });
     
     describe('dispatch', function(){
-        
+
+        BeforeAll(function(){
+            allow(Routeur::class)->toReceive('::stopExecution')->andRun(function(){});
+        });
+
         beforeEach(function(){
             Routeur::clear();
         });
 
         it('should dispatch Route from URI', function(){
-            allow(Routeur::class)->toReceive('::stopExecution')->andRun(function(){});
-
+            
             $callback1 = function(){echo "callback n°1 OK";};
             $callback2 = function(){echo "callback n°2 OK";};
 
@@ -58,7 +61,6 @@ describe('Routeur test', function() {
         });
 
         it('should interpret the parameters in the URI and register them in $_GET', function(){
-            allow(Routeur::class)->toReceive('::stopExecution')->andRun(function(){});
 
             $callback = function() {
                 if(isset($_GET['id']))
@@ -79,7 +81,39 @@ describe('Routeur test', function() {
 
     describe('redirection', function(){
 
-        it('should redirect', function(){});
+        BeforeAll(function(){
+            allow(Routeur::class)->toReceive('::stopExecution')->andRun(function(){});
+        });
+
+        beforeEach(function(){
+            Routeur::clear();
+        });
+
+        it('should redirect', function(){
+            $closure = function(){Routeur::dispatch('unknow');};
+            expect($closure)->toEcho('Page introuvable ...');
+        });
+
+        it('should redirect on specific page for 404 status', function(){
+            $callback = function(){
+                echo "Error 404";
+            };
+            Routeur::set('404', '404', $callback);
+
+            $closure = function(){Routeur::dispatch('unknow');};
+            expect($closure)->toEcho('Error 404');
+        });
+
+    });
+
+    describe('url', function(){
+
+        it('should get the URL path from Route', function(){
+            
+        });
+        it('should get the URL path from Route with parameters', function(){
+            
+        });
 
     });
     
