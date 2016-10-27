@@ -1,37 +1,94 @@
 <?php
 
-/*
- * The MIT License
- *
- * Copyright 2015 fabien.sanchez.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
+namespace fzed51\Core;
 
-class Session {
+define("FLASH_ERROR", "error");
+define("FLASH_WARNING", "warning");
+define("FLASH_SUCCES", "succes");
+define("FLASH_INFO", "info");
 
-    static function initializ() {
+class Session
+{
 
-        define("FLASH_ERROR", "error");
-        define("FLASH_WARNING", "warning");
-        define("FLASH_SUCCES", "succes");
-        define("FLASH_INFO", "info");
+    static private $registred = false;
+
+    static function register()
+    {
+        if (!self::isStart()) {
+            self::start();
+        }
+        if (self::isStart()) {
+            self::initializ();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private static function isEnviable()
+    {
+        $status = session_status();
+        if ($status == PHP_SESSION_DISABLED) {
+            throw new \Exception("Impossible d'utiliser les sessions, elles sont desactivee.");
+        }
+        $file = '';
+        $line = 0;
+        if ($status == PHP_SESSION_NONE && headers_sent($file, $line)) {
+            throw new \Exception("Impossible d'utiliser les sessions, une entete a deja ete envoyee. {$file}({$line})");
+        }
+    }
+
+    private static function isStart()
+    {
+        $status = session_status();
+        if (self::isEnviable()) {
+            if ($status == PHP_SESSION_ACTIVE) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    static function start()
+    {
+        if (!session_start()) {
+            throw new \Exception("Impossible de demarrer une session.");
+        }
+        return true;
+    }
+
+    static function stop()
+    {
+        session_write_close();
+    }
+
+    static function destroy()
+    {
+        if (isset($_SESSION)) {
+            $_SESSION = [];
+        }
+
+        session_unset();
+        if (ini_get("session.use_cookies")) {
+            $params = session_get_cookie_params();
+            setcookie(
+                session_name(),
+                '',
+                time() - 42000,
+                $params["path"],
+                $params["domain"],
+                $params["secure"],
+                $params["httponly"]
+            );
+        }
+        if (!session_destroy()) {
+            throw new \Exception("Impossible de detruire la session.");
+        }
+    }
+
+    static function initializ()
+    {
 
         if (isset($_SESSION['CSRF'])) {
             $_SESSION['OLD_CSRF'] = $_SESSION['CSRF'];
@@ -39,11 +96,13 @@ class Session {
         $_SESSION['CSRF'] = sha1(uniqid() . time() . 'FabienSanchez');
     }
 
-    static function inputCsrf() {
+    static function inputCsrf()
+    {
         return '<input type="hidden" name="CSRF" value="' . $_SESSION['CSRF'] . '">';
     }
 
-    static function checkPostCsrf() {
+    static function checkPostCsrf()
+    {
         if (!isset($_SESSION['OLD_CSRF']) || !isset($_POST['CSRF']) || $_SESSION['OLD_CSRF'] <> $_POST['CSRF']) {
             if (isAjaxMethode()) {
                 http_response_code(401);
@@ -55,7 +114,8 @@ class Session {
         }
     }
 
-    static function checkGetCsrf() {
+    static function checkGetCsrf()
+    {
         if (!isset($_SESSION['OLD_CSRF']) || !isset($_GET['CSRF']) || $_SESSION['OLD_CSRF'] <> $_GET['CSRF']) {
             setFlash('error', "Vous n'etes pas autorisé  à effectuer cette action.");
             redirect(401, url('home'));
@@ -63,15 +123,18 @@ class Session {
         }
     }
 
-    static function csrfBack() {
+    static function csrfBack()
+    {
         $_SESSION['CSRF'] = $_SESSION['OLD_CSRF'];
     }
 
-    static function getCsrf() {
+    static function getCsrf()
+    {
         return $_SESSION['CSRF'];
     }
 
-    static function setFlash($type, $message) {
+    static function setFlash($type, $message)
+    {
         $type = strtolower($type);
         if (!isset($_SESSION['FLASH'])) {
             $_SESSION['FLASH'] = [];
@@ -82,7 +145,8 @@ class Session {
         $_SESSION['FLASH'][$type][] = $message;
     }
 
-    static function getFlashs() {
+    static function getFlashs()
+    {
         $out = '';
         if (isset($_SESSION['FLASH'])) {
             foreach ($_SESSION['FLASH'] as $type => $flashs) {
@@ -94,5 +158,4 @@ class Session {
         $_SESSION['FLASH'] = [];
         return $out;
     }
-
 }
