@@ -1,13 +1,40 @@
 <?php
 
+use fzed51\Core\Session;
+
 describe('Session', function(){
 
     describe('Register', function(){
 
-        it('should register the session', function(){
-            expect(session_status())->toBe(PHP_SESSION_DISABLED );
-            expect(session_status())->toBe(PHP_SESSION_NONE );
-            expect(session_status())->toBe(PHP_SESSION_ACTIVE );
+        it('should\'nt register the session if session is disabled', function(){
+            allow('session_status')->toBeCalled()->andReturn(PHP_SESSION_DISABLED);
+            expect(function(){Session::register();})->toThrow(new Exception("Session : Impossible d'utiliser les sessions, elles sont desactivee."));
+        });
+
+        it('should\'nt register the session if header is send', function(){
+            allow('session_status')->toBeCalled()->andReturn(PHP_SESSION_NONE);
+            allow('headers_sent')->toBeCalled()->andReturn(true);
+            expect(function(){Session::register();})->toThrow(new Exception("Session : Impossible d'utiliser les sessions, une entete a deja ete envoyee. (0)"));
+        });
+
+        it('should throw an exception if start session is impossible', function(){
+            allow('session_status')->toBeCalled()->andReturn(PHP_SESSION_NONE);
+            allow('headers_sent')->toBeCalled()->andReturn(false);
+            allow('session_start')->toBeCalled()->andReturn(false);
+            expect(function(){Session::register();})->toThrow(new Exception("Session : Impossible de demarrer une session"));
+        });
+
+        it('should create a session', function(){
+            allow('session_status')->toBeCalled()->andReturn(PHP_SESSION_NONE);
+            allow('headers_sent')->toBeCalled()->andReturn(false);
+            allow('session_start')->toBeCalled()->andReturn(true);
+            expect(function(){Session::register();})->not->toThrow();
+        });
+
+        it('should create a session if it\'s started', function(){
+            allow('session_status')->toBeCalled()->andReturn(PHP_SESSION_ACTIVE);
+            allow('headers_sent')->toBeCalled()->andReturn(false);
+            expect(function(){Session::register();})->not->toThrow();
         });
 
     });

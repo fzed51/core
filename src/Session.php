@@ -25,8 +25,11 @@ class Session
      *
      * initilalise la session et ses modules
      */
-    public static function redister()
+    public static function register()
     {
+        //if(is_null(self::$instance)){
+            self::$instance = new self();    
+        //}        
     }
 
     /**
@@ -51,16 +54,16 @@ class Session
 
     public static function __CallStatic($methode, $arguments)
     {
-        if(isset(self::$registred_methodes[$methode])){
+        if (isset(self::$registred_methodes[$methode])) {
             $module_name = self::$registred_methodes[$methode];
             $module = self::$modules[$module_name];
-            if(empty($arguments)){
+            if (empty($arguments)) {
                 return call_user_func([$module, $methode]);
             } else {
                 return call_user_func([$module, $methode], $arguments);
             }
         }
-        throw new \Exception("Session : Méthode inconnue");        
+        throw new \Exception("Session : Méthode inconnue");
     }
 
     /**
@@ -71,7 +74,7 @@ class Session
     public static function get($offset, $default = null)
     {
         self::register();
-        if(self::$instance->has($offset)){
+        if (self::$instance->has($offset)) {
             return self::$instance->read($offset);
         }
         return $default;
@@ -96,13 +99,23 @@ class Session
     public static function has($offset)
     {
         self::register();
-        return self::$instance->has($offset);
+        return self::$instance->isset($offset);
+    }
+
+    private static function errorMsg($message)
+    {
+        return "Session : {$message}";
     }
 
     // ----------------------------------------------------------------------
 
     protected function __construct()
     {
+        if (!$this->isStart()) {
+            if(!$this->start()){
+                throw new \Exception(self::errorMsg("Impossible de demarrer une session"));
+            }
+        }
     }
 
     function __destruct()
@@ -121,7 +134,44 @@ class Session
     {
     }
 
-    public function has($offset)
+    public function isset($offset)
     {
     }
+
+    private function isEnviable()
+    {
+        $status = session_status();
+        if ($status == PHP_SESSION_DISABLED) {
+            throw new \Exception(self::errorMsg("Impossible d'utiliser les sessions, elles sont desactivee."));
+        }
+        $file = '';
+        $line = 0;
+        if ($status == PHP_SESSION_NONE && headers_sent($file, $line)) {
+            throw new \Exception(self::errorMsg("Impossible d'utiliser les sessions, une entete a deja ete envoyee. {$file}({$line})"));
+        }
+        return true;
+    }
+
+    private function isStart()
+    {
+        $status = session_status();
+        if (self::isEnviable()) {
+            if ($status == PHP_SESSION_ACTIVE) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    private function start()
+    {
+        return session_start();
+    }
+
+    private function close()
+    {
+        return session_write_close();
+    }
+
 }
