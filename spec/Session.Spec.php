@@ -39,4 +39,15 @@ describe('Session', function(){
 
     });
 
+    describe('setter', function(){
+
+        it('should write a value in session', function(){
+            allow('session_status')->toBeCalled()->andReturn(PHP_SESSION_ACTIVE);
+            allow('headers_sent')->toBeCalled()->andReturn(false);
+            allow(Session::class)->toReceive('write')->with('key', 'value')->andRun(function($key, $value){$_SESSION[$key] = $value;echo '$_SESSION[key]=value';});
+            expect(function(){Session::set('key', 'value');})->toEcho('$_SESSION[key]=value');
+        });
+
+    });
+
 });
