@@ -74,7 +74,7 @@ class Session
     public static function get($offset, $default = null)
     {
         self::register();
-        if (self::$instance->has($offset)) {
+        if (self::$instance->isset($offset)) {
             return self::$instance->read($offset);
         }
         return $default;
@@ -104,7 +104,12 @@ class Session
 
     private static function errorMsg($message)
     {
-        return "Session : {$message}";
+        return __CLASS__ . " : {$message}";
+    }
+
+    public static function listeMethodes()
+    {
+        return self::$registred_methodes;
     }
 
     // ----------------------------------------------------------------------
@@ -128,14 +133,17 @@ class Session
 
     public function read($offset)
     {
+        return $_SESSION[$offset];
     }
 
     public function write($offset, $value)
     {
+        $_SESSION[$offset] = $value;
     }
 
     public function isset($offset)
     {
+        return isset($_SESSION[$offset]);
     }
 
     private function isEnviable()
