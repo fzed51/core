@@ -1,6 +1,7 @@
 <?php
 
 use fzed51\Core\Session;
+use fzed51\Core\SessionModule;
 
 describe('Session', function () {
 
@@ -97,9 +98,29 @@ describe('Session', function () {
     });
 
     describe('module', function () {
+        
+        class module extends SessionModule {
+            protected $name = "module";
+            function register(){}
+            function methode(){}
+        }
+
+        class notModule {
+            protected $name = "notMudule";
+            function register(){}
+            function methode(){}
+        }
 
         it('should accept the modules', function () {
-            
+            allow('session_status')->toBeCalled()->andReturn(PHP_SESSION_ACTIVE);
+            allow('headers_sent')->toBeCalled()->andReturn(false);
+            expect(function(){Session::addModule(new module());})->not->toThrow();
+        });
+
+        it('should\'nt accept a class as a module', function () {
+            allow('session_status')->toBeCalled()->andReturn(PHP_SESSION_ACTIVE);
+            allow('headers_sent')->toBeCalled()->andReturn(false);
+            expect(function(){Session::addModule(new notModule());})->toThrow(new \Exception("fzed51\\Core\\Session : le module notModule n'est pas un module"));
         });
 
     });
