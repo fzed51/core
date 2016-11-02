@@ -39,10 +39,13 @@ class Session
      *
      * @param $module \fzed51\Core\SessionModule
      */
-    public static function addModule(SessionModule $module)
+    public static function addModule($module)
     {
+        if(!is_a($module,SessionModule::class)){
+            throw new \Exception(self::errorMsg("le module " . get_class($module) . " n'est pas un module"));
+        }
         $module_name = $module->getName();
-        self::$module[$module_name] = $module;
+        self::$modules[$module_name] = $module;
         if (!is_null(self::$instance)) {
             $module->registerModule(self::$instance);
             $methodes = $module->getMethodes();
@@ -63,7 +66,7 @@ class Session
                 return call_user_func([$module, $methode], $arguments);
             }
         }
-        throw new \Exception("Session : Méthode inconnue");
+        throw new \Exception(self::errorMsg("Méthode inconnue"));
     }
 
     /**

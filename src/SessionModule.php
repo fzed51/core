@@ -28,7 +28,7 @@ abstract class SessionModule
     final public function getMethodes(){
         $class = get_class($this);
         $methodes = get_class_methods($class);
-        return methodes;
+        return $methodes;
     }
 
 
