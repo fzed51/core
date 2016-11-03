@@ -77,7 +77,7 @@ class Session
     public static function get($offset, $default = null)
     {
         self::register();
-        if (self::$instance->isset($offset)) {
+        if (self::$instance->is_set($offset)) {
             return self::$instance->read($offset);
         }
         return $default;
@@ -102,7 +102,7 @@ class Session
     public static function has($offset)
     {
         self::register();
-        return self::$instance->isset($offset);
+        return self::$instance->is_set($offset);
     }
 
     private static function errorMsg($message)
@@ -144,7 +144,7 @@ class Session
         $_SESSION[$offset] = $value;
     }
 
-    public function isset($offset)
+    public function is_set($offset)
     {
         return isset($_SESSION[$offset]);
     }
