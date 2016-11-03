@@ -120,7 +120,7 @@ describe('Session', function () {
         it('should\'nt accept a class as a module', function () {
             allow('session_status')->toBeCalled()->andReturn(PHP_SESSION_ACTIVE);
             allow('headers_sent')->toBeCalled()->andReturn(false);
-            expect(function(){Session::addModule(new notModule());})->toThrow(new \Exception("fzed51\\Core\\Session : le module notModule n'est pas un module"));
+            expect(function(){Session::addModule(new notModule());})->toThrow();
         });
 
     });

@@ -2,6 +2,8 @@
 
 namespace fzed51\Core;
 
+use \fzed51\Core\SessionModule;
+
 class Session
 {
 
@@ -39,11 +41,9 @@ class Session
      *
      * @param $module \fzed51\Core\SessionModule
      */
-    public static function addModule($module)
+    //public static function addModule($module)
+    public static function addModule(SessionModule $module)
     {
-        if(!is_a($module,SessionModule::class)){
-            throw new \Exception(self::errorMsg("le module " . get_class($module) . " n'est pas un module"));
-        }
         $module_name = $module->getName();
         self::$modules[$module_name] = $module;
         if (!is_null(self::$instance)) {
