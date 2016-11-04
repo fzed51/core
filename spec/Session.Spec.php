@@ -52,77 +52,126 @@ describe('Session', function () {
         it('should determine whether a value exists', function () {
             $_SESSION = [];
             $_SESSION['key'] = 'value';
-
             allow('session_status')->toBeCalled()->andReturn(PHP_SESSION_ACTIVE);
             allow('headers_sent')->toBeCalled()->andReturn(false);
 
             expect(Session::has('key'))->toBeTruthy();
             expect(Session::has('key_unknow'))->toBeFalsy();
         });
+        it('should determine whether a value exists', function () {
+            $_SESSION = [];
+            $_SESSION['dim'] = [];
+            $_SESSION['dim']['key'] = 'value';
+            allow('session_status')->toBeCalled()->andReturn(PHP_SESSION_ACTIVE);
+            allow('headers_sent')->toBeCalled()->andReturn(false);
+            
+            expect(Session::has('dim'))->toBeTruthy();
+            expect(Session::has('dim.key'))->toBeTruthy();
+            expect(Session::has(['dim','key']))->toBeTruthy();
+        });
     });
 
     describe('setter', function () {
         it('should write a value in session', function () {
             $_SESSION = [];
-
             allow('session_status')->toBeCalled()->andReturn(PHP_SESSION_ACTIVE);
             allow('headers_sent')->toBeCalled()->andReturn(false);
 
             Session::Set('key', 'value');
             expect($_SESSION['key'])->toBe('value');
         });
+        it('should write a value in multi-dimentinal session', function () {
+            $_SESSION = [];
+            allow('session_status')->toBeCalled()->andReturn(PHP_SESSION_ACTIVE);
+            allow('headers_sent')->toBeCalled()->andReturn(false);
+            
+            Session::Set('dim.key', 'value');
+            expect($_SESSION['dim']['key'])->toBe('value');
+            Session::Set(['dim','key'], 'value2');
+            expect($_SESSION['dim']['key'])->toBe('value2');
+        });
     });
 
 
     describe('getter', function () {
-        it('should read a value in session', function () {            
+        it('should read a value in session', function () {
             $_SESSION = [];
             $_SESSION['key']='value';
-
             allow('session_status')->toBeCalled()->andReturn(PHP_SESSION_ACTIVE);
             allow('headers_sent')->toBeCalled()->andReturn(false);
 
             expect(Session::get('key', 'x'))->toBe('value');
         });
 
-        it('should read a default value if value do\'nt exist', function () {            
+        it('should read a value in multi-dimentinal session', function () {
+            $_SESSION = [];
+            $_SESSION['dim'] = [];
+            $_SESSION['dim']['key']='value';
+            allow('session_status')->toBeCalled()->andReturn(PHP_SESSION_ACTIVE);
+            allow('headers_sent')->toBeCalled()->andReturn(false);
+
+            expect(Session::get('dim.key'))->toBe('value');
+            expect(Session::get(['dim','key']))->toBe('value');
+        });
+
+        it('should read a default value if value do\'nt exist', function () {
             $_SESSION = [];
             $_SESSION['key']='value';
-
             allow('session_status')->toBeCalled()->andReturn(PHP_SESSION_ACTIVE);
             allow('headers_sent')->toBeCalled()->andReturn(false);
             
             expect(Session::get('key_unknow'))->toBeNull();
             expect(Session::get('key_unknow', 'unknow'))->toBe('unknow');
         });
+
+        it('should read a default value if value do\'nt exist in multi-dimentinal session', function () {
+            $_SESSION = [];
+            allow('session_status')->toBeCalled()->andReturn(PHP_SESSION_ACTIVE);
+            allow('headers_sent')->toBeCalled()->andReturn(false);
+            
+            expect(Session::get('dim.key'))->toBeNull();
+            expect(Session::get(['dim','key'], 'unknow'))->toBe('unknow');
+        });
     });
 
     describe('module', function () {
         
-        class module extends SessionModule {
+        class module extends SessionModule
+        {
             protected $name = "module";
-            function register(){}
-            function methode(){}
+            function register()
+            {
+            }
+            function methode()
+            {
+            }
         }
 
-        class notModule {
+        class notModule
+        {
             protected $name = "notMudule";
-            function register(){}
-            function methode(){}
+            function register()
+            {
+            }
+            function methode()
+            {
+            }
         }
 
         it('should accept the modules', function () {
             allow('session_status')->toBeCalled()->andReturn(PHP_SESSION_ACTIVE);
             allow('headers_sent')->toBeCalled()->andReturn(false);
-            expect(function(){Session::addModule(new module());})->not->toThrow();
+            expect(function () {
+                Session::addModule(new module());
+            })->not->toThrow();
         });
 
         it('should\'nt accept a class as a module', function () {
             allow('session_status')->toBeCalled()->andReturn(PHP_SESSION_ACTIVE);
             allow('headers_sent')->toBeCalled()->andReturn(false);
-            expect(function(){Session::addModule(new notModule());})->toThrow();
+            expect(function () {
+                Session::addModule(new notModule());
+            })->toThrow();
         });
-
     });
-
 });
