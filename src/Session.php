@@ -4,8 +4,7 @@ namespace fzed51\Core;
 
 use \fzed51\Core\SessionModule;
 
-class Session
-{
+class Session {
 
     /**
      * @var Session $instance est l'instance de la session
@@ -30,8 +29,8 @@ class Session
     public static function register()
     {
         //if(is_null(self::$instance)){
-            self::$instance = new self();    
-        //}        
+        self::$instance = new self();
+        //}
     }
 
     /**
@@ -93,7 +92,7 @@ class Session
         self::register();
         self::$instance->write($offset, $value);
     }
-    
+
     /**
      * has
      *
@@ -120,7 +119,7 @@ class Session
     protected function __construct()
     {
         if (!$this->isStart()) {
-            if(!$this->start()){
+            if (!$this->start()) {
                 throw new \Exception(self::errorMsg("Impossible de demarrer une session"));
             }
         }
@@ -128,25 +127,76 @@ class Session
 
     function __destruct()
     {
+
     }
 
     public function destroy()
     {
+
     }
 
     public function read($offset)
     {
-        return $_SESSION[$offset];
+        if (is_array($offset)) {
+            $offsets = $offset;
+        } else {
+            $offsets = explode('.', ((string) $offset));
+        }
+        return $this->read_reduce($_SESSION, $offsets);
+    }
+
+    private function read_reduce($in, array $offsets)
+    {
+        $offset = array_shift($offsets);
+        if (empty($offsets)) {
+            return $in[$offset];
+        }
+        return $this->read_reduce($in[$offset], $offsets);
     }
 
     public function write($offset, $value)
     {
-        $_SESSION[$offset] = $value;
+        if (is_array($offset)) {
+            $offsets = $offset;
+        } else {
+            $offsets = explode('.', ((string) $offset));
+        }
+        $this->write_reduce($_SESSION, $offsets, $value);
+    }
+
+    private function write_reduce(&$in, array $offsets, $value)
+    {
+        $offset = array_shift($offsets);
+        if (empty($offsets)) {
+            $in[$offset] = $value;
+            return;
+        }
+        if (!isset($in[$offset]) || !is_array($in[$offset])) {
+            $in[$offset] = [];
+        }
+        $this->write_reduce($in[$offset], $offsets, $value);
     }
 
     public function is_set($offset)
     {
-        return isset($_SESSION[$offset]);
+        if (is_array($offset)) {
+            $offsets = $offset;
+        } else {
+            $offsets = explode('.', ((string) $offset));
+        }
+        return $this->is_set_reduce($_SESSION, $offsets);
+    }
+
+    private function is_set_reduce($in, array $offsets)
+    {
+        if (empty($offsets)) {
+            return true;
+        }
+        $offset = array_shift($offsets);
+        if (isset($in[$offset])) {
+            return $this->is_set_reduce($in[$offset], $offsets);
+        }
+        return false;
     }
 
     private function isEnviable()

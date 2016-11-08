@@ -64,10 +64,10 @@ describe('Session', function () {
             $_SESSION['dim']['key'] = 'value';
             allow('session_status')->toBeCalled()->andReturn(PHP_SESSION_ACTIVE);
             allow('headers_sent')->toBeCalled()->andReturn(false);
-            
+
             expect(Session::has('dim'))->toBeTruthy();
             expect(Session::has('dim.key'))->toBeTruthy();
-            expect(Session::has(['dim','key']))->toBeTruthy();
+            expect(Session::has(['dim', 'key']))->toBeTruthy();
         });
     });
 
@@ -84,10 +84,13 @@ describe('Session', function () {
             $_SESSION = [];
             allow('session_status')->toBeCalled()->andReturn(PHP_SESSION_ACTIVE);
             allow('headers_sent')->toBeCalled()->andReturn(false);
-            
+
             Session::Set('dim.key', 'value');
+            expect($_SESSION['dim'])->toBeA('array');
             expect($_SESSION['dim']['key'])->toBe('value');
-            Session::Set(['dim','key'], 'value2');
+            $_SESSION = [];
+            Session::Set(['dim', 'key'], 'value2');
+            expect($_SESSION['dim'])->toBeA('array');
             expect($_SESSION['dim']['key'])->toBe('value2');
         });
     });
@@ -96,7 +99,7 @@ describe('Session', function () {
     describe('getter', function () {
         it('should read a value in session', function () {
             $_SESSION = [];
-            $_SESSION['key']='value';
+            $_SESSION['key'] = 'value';
             allow('session_status')->toBeCalled()->andReturn(PHP_SESSION_ACTIVE);
             allow('headers_sent')->toBeCalled()->andReturn(false);
 
@@ -106,20 +109,20 @@ describe('Session', function () {
         it('should read a value in multi-dimentinal session', function () {
             $_SESSION = [];
             $_SESSION['dim'] = [];
-            $_SESSION['dim']['key']='value';
+            $_SESSION['dim']['key'] = 'value';
             allow('session_status')->toBeCalled()->andReturn(PHP_SESSION_ACTIVE);
             allow('headers_sent')->toBeCalled()->andReturn(false);
 
             expect(Session::get('dim.key'))->toBe('value');
-            expect(Session::get(['dim','key']))->toBe('value');
+            expect(Session::get(['dim', 'key']))->toBe('value');
         });
 
         it('should read a default value if value do\'nt exist', function () {
             $_SESSION = [];
-            $_SESSION['key']='value';
+            $_SESSION['key'] = 'value';
             allow('session_status')->toBeCalled()->andReturn(PHP_SESSION_ACTIVE);
             allow('headers_sent')->toBeCalled()->andReturn(false);
-            
+
             expect(Session::get('key_unknow'))->toBeNull();
             expect(Session::get('key_unknow', 'unknow'))->toBe('unknow');
         });
@@ -128,34 +131,44 @@ describe('Session', function () {
             $_SESSION = [];
             allow('session_status')->toBeCalled()->andReturn(PHP_SESSION_ACTIVE);
             allow('headers_sent')->toBeCalled()->andReturn(false);
-            
+
             expect(Session::get('dim.key'))->toBeNull();
-            expect(Session::get(['dim','key'], 'unknow'))->toBe('unknow');
+            expect(Session::get(['dim', 'key'], 'unknow'))->toBe('unknow');
         });
     });
 
     describe('module', function () {
-        
-        class module extends SessionModule
-        {
+
+        class module extends SessionModule {
+
             protected $name = "module";
+
             function register()
             {
+
             }
+
             function methode()
             {
+
             }
+
         }
 
-        class notModule
-        {
+        class notModule {
+
             protected $name = "notMudule";
+
             function register()
             {
+
             }
+
             function methode()
             {
+
             }
+
         }
 
         it('should accept the modules', function () {
