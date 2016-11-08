@@ -2,8 +2,7 @@
 
 namespace fzed51\Core;
 
-class SessionCsrf extends SessionModule
-{
+class SessionCsrf extends SessionModule {
 
     function Register()
     {
@@ -27,7 +26,7 @@ class SessionCsrf extends SessionModule
                 Session::setFlash('error', "Vous n'etes pas autorisé  à effectuer cette action.");
                 redirect(401, url('home'));
             }
-            exit(1);
+            $this->stopExecution();
         }
     }
 
@@ -36,8 +35,13 @@ class SessionCsrf extends SessionModule
         if (!$this->session->has('OLD_CSRF') || !$this->session->has('CSRF') || $this->session->read('OLD_CSRF') <> $_GET('CSRF')) {
             Session::setFlash('error', "Vous n'etes pas autorisé  à effectuer cette action.");
             redirect(401, url('home'));
-            exit(1);
+            $this->stopExecution();
         }
+    }
+
+    private function stopExecution()
+    {
+        die();
     }
 
     function csrfBack()
@@ -49,4 +53,5 @@ class SessionCsrf extends SessionModule
     {
         return $this->session->read('CSRF');
     }
+
 }
