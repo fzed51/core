@@ -4,6 +4,8 @@ namespace fzed51\Core;
 
 class SessionCsrf extends SessionModule {
 
+    protected $name = 'CSRF';
+
     function Register()
     {
         if ($this->session->has('CSRF')) {

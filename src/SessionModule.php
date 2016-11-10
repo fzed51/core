@@ -13,7 +13,7 @@ abstract class SessionModule
     {
         $this->session = $session;
         if(empty($this->name)){
-            throw new \Exception("Le nom du module n'est pas initialisé");
+            throw new \Exception("Le nom du module n'est pas initialisé, nom inconnu");
         }
         $this->register();
     }

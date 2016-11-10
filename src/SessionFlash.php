@@ -4,11 +4,9 @@ namespace fzed51\Core;
 
 class SessionFlash extends SessionModule {
 
-    private
-            function Register()
-    {
+    protected $name = 'Flash';
 
-    }
+    protected function Register(){}
 
     private function getRawFlash()
     {
