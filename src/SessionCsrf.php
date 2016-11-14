@@ -14,7 +14,7 @@ class SessionCsrf extends SessionModule {
         $this->session->write('CSRF', sha1(uniqid() . time() . 'FabienSanchez'));
     }
 
-    static function inputCsrf()
+    function inputCsrf()
     {
         return '<input type="hidden" name="CSRF" value="' . $this->session->read('CSRF') . '">';
     }

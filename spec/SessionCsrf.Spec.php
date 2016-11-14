@@ -6,9 +6,9 @@ use fzed51\Core\SessionCsrf;
 
 describe('Csrf Module Session', function () {
 
-        describe('register', function(){
+        describe('register', function () {
 
-            it('should be registred as a Session module', function(){
+            it('should be registred as a Session module', function () {
                 allow('session_status')->toBeCalled()->andReturn(PHP_SESSION_ACTIVE);
                 allow('headers_sent')->toBeCalled()->andReturn(false);
                 expect(function () {
@@ -16,6 +16,16 @@ describe('Csrf Module Session', function () {
                 })->not->toThrow();
             });
 
+            it('should be registred with all methodes', function () {
+                $listMethodes = Session::listeMethodes();
+                expect($listMethodes)->toContainKey(
+                    'inputCsrf',
+                    'checkPostCsrf',
+                    'checkGetCsrf',
+                    'csrfBack',
+                    'getCsrf'
+                );
+            });
+            
         });
-
 });

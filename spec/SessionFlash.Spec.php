@@ -16,6 +16,14 @@ describe('Flash Module Session', function () {
                 })->not->toThrow();
             });
 
+            it('should be registred with all methodes', function () {
+                $listMethodes = Session::listeMethodes();
+                expect($listMethodes)->toContainKey(
+                    'setFlash',
+                    'getFlashs'
+                );
+            });
+
         });
 
 });
