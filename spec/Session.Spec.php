@@ -153,6 +153,11 @@ describe('Session', function () {
 
             }
 
+            private function hiddeMethode($value='')
+            {
+                
+            }
+
         }
 
         class notModule {
@@ -177,6 +182,10 @@ describe('Session', function () {
             expect(function () {
                 Session::addModule(new module());
             })->not->toThrow();
+        });
+
+        it('should register the methode of module', function(){
+            expect(Session::listeMethodes())->toEqual(['methode'=>'module']);
         });
 
         it('should\'nt accept a class as a module', function () {
