@@ -153,9 +153,9 @@ describe('Session', function () {
 
             }
 
-            private function hiddeMethode($value='')
+            private function hiddeMethode($value = '')
             {
-                
+
             }
 
         }
@@ -184,8 +184,8 @@ describe('Session', function () {
             })->not->toThrow();
         });
 
-        it('should register the methode of module', function(){
-            expect(Session::listeMethodes())->toEqual(['methode'=>'module']);
+        it('should register the methode of module', function () {
+            expect(Session::listeMethodes())->toEqual(['methode' => 'module']);
         });
 
         it('should\'nt accept a class as a module', function () {
@@ -194,6 +194,20 @@ describe('Session', function () {
             expect(function () {
                 Session::addModule(new notModule());
             })->toThrow();
+        });
+    });
+
+    describe('cleanner', function () {
+
+        it('should cleanne the session', function () {
+            $_SESSION = ['key' => 'value'];
+            allow('session_status')->toBeCalled()->andReturn(PHP_SESSION_ACTIVE);
+            allow('headers_sent')->toBeCalled()->andReturn(false);
+            expect($_SESSION)->not->toEqual([]);
+            expect(Session::listeMethodes())->not->toEqual([]);
+            Session::raz();
+            expect($_SESSION)->toEqual([]);
+            expect(Session::listeMethodes())->toEqual([]);
         });
     });
 });

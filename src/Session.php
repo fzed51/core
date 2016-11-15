@@ -114,6 +114,13 @@ class Session {
         return self::$registred_methodes;
     }
 
+    public static function raz()
+    {
+        self::$instance->clearSession();
+        self::$modules = [];
+        self::$registred_methodes = [];
+    }
+
     // ----------------------------------------------------------------------
 
     protected function __construct()
@@ -233,6 +240,13 @@ class Session {
     private function close()
     {
         return session_write_close();
+    }
+
+    private function clearSession()
+    {
+        if(isset($_SESSION)){
+            $_SESSION = [];
+        }
     }
 
 }
