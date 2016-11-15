@@ -25,7 +25,7 @@ class SessionCsrf extends SessionModule {
             if (isAjaxMethode()) {
                 http_response_code(401);
             } else {
-                Session::setFlash('error', "Vous n'etes pas autorisé  à effectuer cette action.");
+                Session::setFlash('error', "Vous n'etes pas autorisé à effectuer cette action.");
                 redirect(401, url('home'));
             }
             $this->stopExecution();
@@ -35,7 +35,7 @@ class SessionCsrf extends SessionModule {
     function checkGetCsrf()
     {
         if (!$this->session->has('OLD_CSRF') || !$this->session->has('CSRF') || $this->session->read('OLD_CSRF') <> $_GET('CSRF')) {
-            Session::setFlash('error', "Vous n'etes pas autorisé  à effectuer cette action.");
+            Session::setFlash('error', "Vous n'etes pas autorisé à effectuer cette action.");
             redirect(401, url('home'));
             $this->stopExecution();
         }

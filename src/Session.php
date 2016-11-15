@@ -17,7 +17,7 @@ class Session {
     static private $modules;
 
     /**
-     * @var array   $registred_methodes est un tableau des m√©thodes autoris√©e
+     * @var array   $registred_methodes est un tableau des mÈthodes autorisÈe
      */
     static private $registred_methodes;
 
@@ -36,7 +36,7 @@ class Session {
     /**
      * addModule
      *
-     * Enregistre un module de session. l'initialise si la session est d√©j√† initialis√©e
+     * Enregistre un module de session. l'initialise si la session est dÈj‡ initialisÈe
      *
      * @param $module \fzed51\Core\SessionModule
      */
@@ -65,13 +65,13 @@ class Session {
                 return call_user_func([$module, $methode], $arguments);
             }
         }
-        throw new \Exception(self::errorMsg("M√©thode inconnue"));
+        throw new \Exception(self::errorMsg("MÈthode inconnue"));
     }
 
     /**
      * get
      *
-     * lit une donn√©e dans la session
+     * lit une donnÈe dans la session
      */
     public static function get($offset, $default = null)
     {
@@ -85,7 +85,7 @@ class Session {
     /**
      * set
      *
-     * √©crit une donn√©e dans la session
+     * Ècrit une donnÈe dans la session
      */
     public static function set($offset, $value)
     {
@@ -96,7 +96,7 @@ class Session {
     /**
      * has
      *
-     * indique si une donn√©e existe en session
+     * indique si une donnÈe existe en session
      */
     public static function has($offset)
     {
@@ -244,7 +244,7 @@ class Session {
 
     private function clearSession()
     {
-        if(isset($_SESSION)){
+        if (isset($_SESSION)) {
             $_SESSION = [];
         }
     }
