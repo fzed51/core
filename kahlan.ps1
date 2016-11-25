@@ -14,8 +14,6 @@ if($coverage){
 }else{
     php.exe .\vendor\kahlan\kahlan\bin\kahlan --reporter=$reporter
 }
- 
-pause
 
 $env:ComSpec = $oldcomspec
 $env:TERM = $null
