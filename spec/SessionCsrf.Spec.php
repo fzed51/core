@@ -68,7 +68,47 @@ describe('Csrf Module Session', function () {
             })->not->toThrow();
             Session::csrfBack();
             expect(Session::getCsrf())->toEqual('0123456789abcdef0123456789abcdef01234567');
-            
+        });
+    });
+
+    describe('input', function(){
+        it('should get a input hidden field for the token', function(){
+            Session::raz();
+            allow('session_status')->toBeCalled()->andReturn(PHP_SESSION_ACTIVE);
+            allow('headers_sent')->toBeCalled()->andReturn(false);
+            expect(function () {
+                Session::addModule(new SessionCsrf());
+            })->not->toThrow();
+            $_SESSION = ['CSRF' => '0123456789abcdef0123456789abcdef01234567'];
+            expect(Session::inputCsrf())->toEqual("<input type=\"hidden\" name=\"CSRF\" value=\"0123456789abcdef0123456789abcdef01234567\">");
+        });
+    });
+
+    describe('check', function(){
+        it('should check if a tocken give in POST is valid ', function(){
+            Session::raz();
+            allow('session_status')->toBeCalled()->andReturn(PHP_SESSION_ACTIVE);
+            allow('headers_sent')->toBeCalled()->andReturn(false);
+            expect(function () {
+                Session::addModule(new SessionCsrf());
+            })->not->toThrow();
+            $_SESSION = ['CSRF' => '0123456789abcdef0123456789abcdef01234567'];
+            $_POST['CSRF'] = '0123456789abcdef0123456789abcdef01234567';
+            expect(function(){Session::checkPostCsrf();})->not->toThrow();
+            expect(http_response_code())->not->toBe(401);
+        });
+        it('should check if a tocken give in POST is not valid ', function(){
+            Session::raz();
+            allow('session_status')->toBeCalled()->andReturn(PHP_SESSION_ACTIVE);
+            allow('headers_sent')->toBeCalled()->andReturn(false);
+            expect(function () {
+                Session::addModule(new SessionCsrf());
+            })->not->toThrow();
+            $_SESSION = ['CSRF' => '0123456789abcdef0123456789abcdef01234567'];
+            $_POST['CSRF'] = '0123456789abcdef0123456789abcdef01234567';
+            $_POST['CSRF'] = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+            expect(function(){Session::checkPostCsrf();})->not->toThrow();
+            expect(http_response_code())->toBe(401);
         });
     });
 });
